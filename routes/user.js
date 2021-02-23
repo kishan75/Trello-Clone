@@ -8,9 +8,11 @@ router.post('/signup', (req, res) => {
         name,
         email,
         password
-    } = req.body; 
-    console.log(req.body);
-    res.sendStatus(200);
+    } = req.body;
+    const accessToken = jwt.sign(req.body, process.env.ACCESS_TOKEN_SECRET);
+    res.status(200).type('json').send({
+        accessToken: accessToken
+    });
 });
 
 module.exports = router;
