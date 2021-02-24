@@ -17,7 +17,6 @@ var generateHash = async (data, saltRounds = 10) => {
 };
 
 var compareHash = async (textString, hashedString) => {
-    console.log(textString, hashedString);
     const match = await bcrypt.compare(textString, hashedString);
     return match;
 };
@@ -31,7 +30,6 @@ var authenticateUser = (req, res, next) => {
         if (err)
             res.sendStatus(403);
         req.user = user;
-        console.log(user);
         next();
     })
 };

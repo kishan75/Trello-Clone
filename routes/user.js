@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var auth = require('../controller').authorization;
 var User = require('../Database').models.User;
+var common = require('../common');
 
 router.post('/signup', async (req, res) => {
     const {
@@ -20,16 +21,13 @@ router.post('/signup', async (req, res) => {
         email: email
     });
     user.save(err => {
-        if (err) {
-            console.log(err);;
-            res.status(400).type('json').send({
-                reason: err.message
-            });
-        } else {
+        if (err)
+            common.handleError(err, 400, res);
+        else
             res.status(200).type('json').send({
                 accessToken: accessToken
             });
-        }
+
     });
 
 });
@@ -45,7 +43,9 @@ router.post('/login', async (req, res) => {
     if (user) {
         const match = await auth.compareHash(password, user.password);
         if (match) {
-            const accessToken = await auth.generateToken(req.body);
+            const accessToken = await auth.generateToken({
+                email: email
+            });
             res.status(200).type('json').send({
                 accessToken: accessToken
             });
