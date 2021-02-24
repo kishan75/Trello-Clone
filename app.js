@@ -1,6 +1,7 @@
 var express = require('express');
 var path = require('path');
 var bodyParser = require('body-parser');
+var auth = require('./controller').authorization;
 
 var app = express();
 
@@ -13,9 +14,6 @@ app.use(bodyParser.urlencoded({
 app.use(express.json());
 require('dotenv').config();
 
-// app.use(function (req,res,next) {
-//                                          // authentication
-// });
 
 app.use('/', require('./routes'));
 
