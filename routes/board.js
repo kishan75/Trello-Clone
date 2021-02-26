@@ -17,7 +17,7 @@ router.post('/', async (req, res) => { // create new board
     if (!members.find(element => element == req.user.email))
         members.push(req.user.email);
 
-    var board = new model.Board({
+    const board = new model.Board({
         _id: new mongoose.Types.ObjectId(),
         name: name,
         members: members
@@ -38,7 +38,7 @@ router.post('/', async (req, res) => { // create new board
 
         model.User.updateMany(filter, update, (err, response) => {
             if (err) common.handleError(err, res, 500);
-            res.status(200).type('json').send(board);
+            res.status(200).type('json').send(response);
         });
     });
 });
