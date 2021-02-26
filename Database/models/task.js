@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const TASK_STATUS = ['To-do', 'In_development', 'To_be_reviewed', 'Finished'];
+
 const schema = Schema({
     title: {
         type: String,
@@ -16,8 +18,8 @@ const schema = Schema({
     },
     status: {
         type: String,
-        enum: ['To-do', 'In development', 'To be reviewed', 'Finished'],
-        default: 'To-do'
+        enum: TASK_STATUS,
+        default: TASK_STATUS[0]
     },
     members: [{
         type: String,
