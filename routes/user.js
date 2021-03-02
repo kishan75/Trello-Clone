@@ -36,7 +36,7 @@ router.post("/login", async (req, res) => {
       const accessToken = await auth.generateToken({
         email: email,
       });
-      res.status(200);
+      res.status(401).type("json").send("loged in successfully");
     } else {
       res.status(401).type("json").send({
         reason: "password mismatch",
