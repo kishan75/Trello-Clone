@@ -50,12 +50,13 @@ router.post("/login", async (req, res) => {
     });
 });
 
-router.get("/users/:boardId?", auth.authenticateUser, async (req, res) => {             // users not part of that board
+router.get("/users/:boardId?", auth.authenticateUser, async (req, res) => {
+  // users not part of that board
   var filter = req.params.boardId
     ? { boards: { $ne: req.params.boardId } }
     : {};
 
-  var users = await User.find(filter, "name email").exec();
+  var users = await User.find(filter, "name _id").exec();
   res.status(200).type("json").send(users);
 });
 
