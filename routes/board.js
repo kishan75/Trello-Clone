@@ -11,6 +11,7 @@ router.post("/", async (req, res) => {
   // create new board
 
   var { name, members } = req.body;
+  members = !members ? [] : typeof members !== Array ? [members] : members;
 
   if (!members.find((element) => element == req.user.email))
     members.push(req.user.email);
@@ -36,17 +37,18 @@ router.post("/", async (req, res) => {
 
     model.User.updateMany(filter, update, (err, response) => {
       if (err) common.handleError(err, res, 500);
-      res.status(200).type("json").send(board);
+
+        board.populate('members').execPopulate((err, board) => {
+        if (err) return common.handleError(err.message, 500, res);
+        res.status(200).type("json").send(JSON.stringify(board));
+      });
     });
   });
 });
 
 router.put("/addMember", async (req, res) => {
   // update existing board like add more people remove member
-  const { boardId, memberEmail } = req.body;
-  const filter = {
-    email: memberEmail,
-  };
+  const { boardId, memberId } = req.body;
   const update = {
     $addToSet: {
       boards: boardId,
@@ -55,12 +57,12 @@ router.put("/addMember", async (req, res) => {
   var option = {
     new: true,
   };
-  model.User.findOneAndUpdate(filter, update, option, (err, user) => {
+  model.User.findByIdAndUpdate(memberId, update, option, (err, user) => {
     if (err || !user)
       return common.handleError(null, 404, res, `user doesn't exist`);
     const addMemberQuery = {
       $addToSet: {
-        members: memberEmail,
+        members: memberId,
       },
     };
     model.Board.findByIdAndUpdate(
@@ -77,10 +79,7 @@ router.put("/addMember", async (req, res) => {
 
 router.put("/removeMember", async (req, res) => {
   // update existing board like add more people remove member
-  const { boardId, memberEmail } = req.body;
-  const filter = {
-    email: memberEmail,
-  };
+  const { boardId, memberId } = req.body;
   const update = {
     $pull: {
       boards: boardId,
@@ -89,12 +88,12 @@ router.put("/removeMember", async (req, res) => {
   var option = {
     new: true,
   };
-  model.User.findOneAndUpdate(filter, update, option, (err, user) => {
+  model.User.findByIdAndUpdate(memberId, update, option, (err, user) => {
     if (err || !user)
       return common.handleError(null, 404, res, `user doesn't exist`);
     const removeMemberQuery = {
       $pull: {
-        members: memberEmail,
+        members: memberId,
       },
     };
     model.Board.findByIdAndUpdate(
