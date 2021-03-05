@@ -8,13 +8,10 @@ var common = require("../common");
 router.use(auth.authenticateUser);
 
 router.post("/", async (req, res) => {
-  // create new board
-
   var { name, members } = req.body;
-  members = !members ? [] : typeof members !== Array ? [members] : members;
+  members = !members ? [] : members.constructor === Array ? members : [members];
 
-  if (!members.find((element) => element == req.user.email))
-    members.push(req.user.email);
+  members.push(req.user.id);
 
   const board = new model.Board({
     _id: new mongoose.Types.ObjectId(),
@@ -25,7 +22,7 @@ router.post("/", async (req, res) => {
     if (err) common.handleError(err, 500, res);
 
     const filter = {
-      email: {
+      _id: {
         $in: members,
       },
     };
@@ -37,8 +34,7 @@ router.post("/", async (req, res) => {
 
     model.User.updateMany(filter, update, (err, response) => {
       if (err) common.handleError(err, res, 500);
-
-        board.populate('members').execPopulate((err, board) => {
+      board.populate("members", "name").execPopulate((err, board) => {
         if (err) return common.handleError(err.message, 500, res);
         res.status(200).type("json").send(JSON.stringify(board));
       });
@@ -109,14 +105,15 @@ router.put("/removeMember", async (req, res) => {
 });
 
 router.get("/", async (req, res) => {
-  // get all board
-  model.User.findOne({
-    email: req.user.email,
-  })
-    .populate("boards")
+  model.User.findById(req.user.id, "boards")
+    .populate({
+      path: "boards",
+      select: "name _id",
+      populate: { path: "members", select: "name -_id" },
+    })
     .exec((err, boards) => {
       if (err) return common.handleError(err.message, 500, res);
-      res.status(200).type("json").send(JSON.stringify(boards));
+      res.status(200).type("json").send(JSON.stringify(boards.boards));
     });
 });
 

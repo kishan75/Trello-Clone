@@ -3,18 +3,21 @@ var router = express.Router();
 var auth = require("../controller").authorization;
 var User = require("../Database").models.User;
 var common = require("../common");
+var mongoose = require("mongoose");
 
 router.post("/signup", async (req, res) => {
   const { name, email, password } = req.body;
   var hashedPassword = await auth.generateHash(password);
 
   var user = new User({
+    _id: new mongoose.Types.ObjectId(),
     name: name,
     email: email,
     password: hashedPassword,
   });
   const accessToken = await auth.generateToken({
     email: email,
+    id: user._id,
   });
   user.save((err) => {
     if (err) common.handleError(err, 400, res);
@@ -35,6 +38,7 @@ router.post("/login", async (req, res) => {
     if (match) {
       const accessToken = await auth.generateToken({
         email: email,
+        id: user._id,
       });
       res.status(200).type("json").send({
         accessToken: accessToken,
@@ -54,7 +58,7 @@ router.get("/users/:boardId?", auth.authenticateUser, async (req, res) => {
   // users not part of that board
   var filter = req.params.boardId
     ? { boards: { $ne: req.params.boardId } }
-    : {};
+    : { _id: { $ne: req.user.id } };
 
   var users = await User.find(filter, "name _id").exec();
   res.status(200).type("json").send(users);
