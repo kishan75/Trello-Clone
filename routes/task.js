@@ -125,7 +125,7 @@ router.get("/:boardId", async (req, res) => {
     })
     .exec((err, tasks) => {
       if (err) return common.handleError(err.message, 500, res);
-      res.status(200).type("json").send(JSON.stringify(tasks.tasks));
+      res.status(200).type("json").send(JSON.stringify(tasks));
     });
 });
 
