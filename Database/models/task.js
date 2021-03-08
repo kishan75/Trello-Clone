@@ -1,15 +1,15 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const TASK_STATUS = ["To-do", "In_development", "To_be_reviewed", "Finished"];
+const TASK_STATUS = ["To_do", "In_development", "To_be_reviewed", "Finished"];
 
 const schema = Schema({
+  description: {
+    type: String,
+  },
   title: {
     type: String,
     required: true,
-  },
-  description: {
-    type: String,
   },
   board: {
     type: Schema.Types.ObjectId,
