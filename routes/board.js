@@ -119,11 +119,16 @@ router.get("/", async (req, res) => {
 
 router.get("/:boardId", async (req, res) => {
   // get details of specifc board
-  model.Board.findById(req.params.boardId, (err, board) => {
-    if (err) return common.handleError(err.message, 404, res);
-    if (!board) return common.handleError(null, 404, res, "board not found");
-    res.status(200).type("json").send(JSON.stringify(board));
-  });
+  model.Board.findById(req.params.boardId)
+    .populate({
+      path: "tasks members",
+      select: "title _id description name",
+      populate: { path: "members", select: "name -_id" },
+    })
+    .exec((err, tasks) => {
+      if (err) return common.handleError(err.message, 500, res);
+      res.status(200).type("json").send(JSON.stringify(tasks));
+    });
 });
 
 module.exports = router;

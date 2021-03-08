@@ -114,20 +114,20 @@ router.put("/editTaskDetail", async (req, res) => {
   );
 });
 
-router.get("/:boardId", async (req, res) => {
-  // get all task from any board
+// router.get("/:boardId", async (req, res) => {
+//   // get all task from any board
 
-  model.Board.findById(req.params.boardId)
-    .populate({
-      path: "tasks",
-      select: "title _id description",
-      populate: { path: "members", select: "name -_id" },
-    })
-    .exec((err, tasks) => {
-      if (err) return common.handleError(err.message, 500, res);
-      res.status(200).type("json").send(JSON.stringify(tasks));
-    });
-});
+//   model.Board.findById(req.params.boardId)
+//     .populate({
+//       path: "tasks",
+//       select: "title _id description",
+//       populate: { path: "members", select: "name -_id" },
+//     })
+//     .exec((err, tasks) => {
+//       if (err) return common.handleError(err.message, 500, res);
+//       res.status(200).type("json").send(JSON.stringify(tasks));
+//     });
+// });
 
 router.get("/:taskId", async (req, res) => {
   // get a specific task from any specific board
