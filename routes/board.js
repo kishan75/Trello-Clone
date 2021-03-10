@@ -105,12 +105,17 @@ router.put("/removeMember", async (req, res) => {
 });
 
 router.get("/", async (req, res) => {
-  model.User.findById(req.user.id, "boards")
-    .populate({
-      path: "boards",
-      select: "name _id",
+  let populateFilter = {
+    path: "boards",
+    select: "name _id",
+  };
+  if (req.query.populateMembers)
+    populateFilter = {
+      ...populateFilter,
       populate: { path: "members", select: "name -_id" },
-    })
+    };
+  model.User.findById(req.user.id, "boards")
+    .populate(populateFilter)
     .exec((err, boards) => {
       if (err) return common.handleError(err.message, 500, res);
       res.status(200).type("json").send(JSON.stringify(boards.boards));
@@ -122,7 +127,7 @@ router.get("/:boardId", async (req, res) => {
   model.Board.findById(req.params.boardId)
     .populate({
       path: "tasks members",
-      select: "title _id description name",
+      select: "title _id description name status",
       populate: { path: "members", select: "name -_id" },
     })
     .exec((err, tasks) => {
